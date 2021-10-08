@@ -1,0 +1,16 @@
+.App {
+   min-height: 100vh;
+   width: 100%;
+}
+
+.global-page {
+   min-height: calc(100vh - 31px);
+   width: 100%;
+   display: flex;
+   flex-direction: column;
+}
+
+a {
+   text-decoration: none;
+   color: black;
+}
