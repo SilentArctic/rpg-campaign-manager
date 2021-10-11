@@ -13,8 +13,6 @@ const useStyles = createUseStyles(theme => ({
       height: '400px',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'space-between',
-      '&:hover': '0px 0px 4px #0008',
    },
 
    item: {
@@ -23,12 +21,12 @@ const useStyles = createUseStyles(theme => ({
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      borderBottom: `1px solid ${theme.grey}`,
+      borderBottom: [[1, 'solid', theme.grey]],
       fontSize: 14,
       padding: [[0, 10]],
       cursor: 'pointer',
       '&:first-child': {
-         borderTop: `1px solid ${theme.grey}`,
+         borderTop: [[1, 'solid', theme.grey]],
       },
       '&:hover': {
          background: theme.lightGrey,
