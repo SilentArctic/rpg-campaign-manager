@@ -1,9 +1,44 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { createUseStyles } from 'react-jss';
+import PropTypes from 'prop-types';
 
-export default function Input(props) {
-   return <input {...props} />;
-}
+const useStyles = createUseStyles(theme => ({
+   input: {
+      border: [[1, 'solid', theme.grey]],
+      borderRadius: theme.borderRadius,
+      padding: 3,
+      fontSize: 14,
+   },
+}));
 
-Input.propTypes = {};
+const Input = React.forwardRef((props, ref) => {
+   const { className, handleEnter, ...inputProps } = props;
+   const $ = useStyles();
 
-Input.defaultProps = {};
+   const onEnter = useCallback(e => {
+      if (e.key === 'Enter') {
+         handleEnter(e);
+      }
+   }, [handleEnter]);
+
+   return (
+      <input
+         ref={ref}
+         className={`${$.input} ${className}`}
+         onKeyDown={onEnter}
+         {...inputProps}
+      />
+   );
+});
+
+Input.propTypes = {
+   className: PropTypes.string,
+   handleEnter: PropTypes.func,
+};
+
+Input.defaultProps = {
+   className: '',
+   handleEnter: () => {},
+};
+
+export default Input;
