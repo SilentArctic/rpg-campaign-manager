@@ -17,14 +17,14 @@ const initialState = [
                   entry: 'First note! Looking good',
                   children: [
                      {
-                        id: 12,
+                        id: 1.1,
                         isTitle: false,
                         time: '01/01/01 5:14 pm',
                         entry: 'Note child',
                         children: [],
                      },
                      {
-                        id: 13,
+                        id: 1.2,
                         isTitle: false,
                         time: '01/01/01 5:14 pm',
                         entry: 'Note child 2',

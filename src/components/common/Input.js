@@ -12,11 +12,21 @@ const useStyles = createUseStyles(theme => ({
 }));
 
 const Input = React.forwardRef((props, ref) => {
-   const { className, handleEnter, ...inputProps } = props;
+   const {
+      className,
+      handleEnter,
+      handleShiftEnter,
+      handleCtrlEnter,
+      ...inputProps
+   } = props;
    const $ = useStyles();
 
    const onEnter = useCallback(e => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && e.shiftKey) {
+         handleShiftEnter(e);
+      } else if (e.key === 'Enter' && e.ctrlKey) {
+         handleCtrlEnter(e);
+      } else if (e.key === 'Enter') {
          handleEnter(e);
       }
    }, [handleEnter]);

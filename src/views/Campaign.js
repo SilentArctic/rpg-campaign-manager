@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { createUseStyles } from 'react-jss';
-import { setCampaign, updateCampaign } from '../redux/campaignReducer';
+import { setCampaign, updateCampaign, createSession } from '../redux/campaignReducer';
 import { FlipInput } from '../components/common';
 import SessionTile from '../components/campaign/SessionTile';
 import SessionPanel from '../components/campaign/SessionPanel';
@@ -96,7 +96,7 @@ export default function Campaign() {
             </div>
 
             <div className={$.sessions}>
-               <SessionTile isNew />
+               <SessionTile isNew onClick={() => dispatch(createSession())} />
                {sessions}
             </div>
          </section>

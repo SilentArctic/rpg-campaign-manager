@@ -40,7 +40,6 @@ const useStyles = createUseStyles(theme => ({
          height: 6,
          width: 6,
          marginRight: 6,
-         // borderLeft: [[1, 'solid', 'black']],
          borderBottom: [[1, 'solid', 'black']],
          position: 'absolute',
          top: 6,
@@ -49,14 +48,38 @@ const useStyles = createUseStyles(theme => ({
    },
 }));
 
-export default function Note({ note, hideTime, onChange, preview }) {
+export default function Note({
+   note,
+   hideTime,
+   onChange,
+   onShiftEnter,
+   onCtrlEnter,
+   defaultEditing,
+   preview,
+}) {
    const $ = useStyles();
+
+   const handleShiftEnter = e => {
+      onChange(e);
+      onShiftEnter(e);
+   };
+
+   const handleCtrlEnter = (e) => {
+      onChange(e);
+      onCtrlEnter(e);
+   };
 
    function renderChildren() {
       return note.children.map(childNote => (
          <div key={childNote.id} className={$.childNote}>
             <span className="bracket" />
-            <Note note={childNote} hideTime preview={preview} />
+            <Note
+               note={childNote}
+               preview={preview}
+               onChange={onChange}
+               onShiftEnter={onShiftEnter}
+               hideTime
+            />
          </div>
       ));
    }
@@ -71,8 +94,11 @@ export default function Note({ note, hideTime, onChange, preview }) {
                key={note.id}
                value={note.entry}
                placeholder="New entry"
-               onChange={onChange}
+               onChange={e => onChange(e, note)}
                readOnly={preview}
+               onShiftEnter={handleShiftEnter}
+               onCtrlEnter={e => handleCtrlEnter(e, [note.id])}
+               defaultEditing={defaultEditing}
             />
          </div>
          {note.children.length > 0 && (
