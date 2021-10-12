@@ -61,6 +61,7 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
    const $ = useStyles({ preview });
    const dispatch = useDispatch();
    const [focusNewNote, setFocusNewNote] = useState(false);
+   const [focusNoteDepth, setFocusNoteDepth] = useState(1);
    const changesMade = useSelector(state => state.campaign.changesMade);
    const session = useSelector(state => state.campaign.sessions.find(s => s.id === sessionId));
 
@@ -73,14 +74,16 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
       setFocusNewNote(false);
    }, [dispatch, updateSessionNotes, sessionId]);
 
-   const handleShiftEnter = useCallback(() => {
-      dispatch(createSessionNote(sessionId, ''));
+   const handleShiftEnter = useCallback((e, noteId) => {
+      dispatch(createSessionNote(sessionId, '', noteId, 'sibling'));
       setFocusNewNote(true);
+      setFocusNoteDepth(noteId.split('.').length);
    }, [dispatch, createSessionNote, sessionId]);
 
    const handleCtrlEnter = useCallback((e, noteId) => {
-      console.log('ctrl enter', noteId);
-      dispatch(createSessionNote(sessionId, ''));
+      dispatch(createSessionNote(sessionId, '', noteId, 'child'));
+      setFocusNewNote(true);
+      setFocusNoteDepth(noteId.split('.').length);
    }, [dispatch, createSessionNote, sessionId]);
 
    const renderNotes = (notes, topLevel) => notes.map((note, i) => (
@@ -92,7 +95,9 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
          onShiftEnter={handleShiftEnter}
          onCtrlEnter={handleCtrlEnter}
          preview={preview}
-         defaultEditing={focusNewNote && topLevel && i === notes.length - 1}
+         isLast={i === notes.length - 1}
+         focusNewNote={focusNewNote}
+         focusNoteDepth={focusNoteDepth}
       />
    ));
 
@@ -152,5 +157,5 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
 }
 
 SessionPanel.propTypes = {
-   sessionId: PropTypes.number.isRequired,
+   sessionId: PropTypes.string.isRequired,
 };
