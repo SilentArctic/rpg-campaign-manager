@@ -11,25 +11,28 @@ import useClickOutside from '../../utils/useClickOutside';
 
 const useStyles = createUseStyles(theme => ({
    display: {
-      marginLeft: -3, // offset padding
+      width: '100%',
+      marginLeft: -4, // offset padding
       padding: 3,
       border: [[1, 'solid', 'transparent']],
       borderRadius: theme.borderRadius,
       fontSize: 14,
-      cursor: 'text',
+      cursor: ({ readOnly }) => readOnly ? 'default' : 'text',
       '&:hover': {
-         border: `1px solid ${theme.grey}`,
+         borderColor: ({ readOnly }) => readOnly ? 'transparent' : theme.grey,
       },
    },
 
    input: {
-      marginLeft: -3,
+      width: '100%',
+      marginLeft: -4,
+      display: 'block',
    },
 }));
 
 export default function FlipInput(props) {
-   const { value, onChange, className, ...inputProps } = props;
-   const $ = useStyles();
+   const { value, onChange, className, readOnly, ...inputProps } = props;
+   const $ = useStyles({ readOnly });
    const [inputValue, setInputValue] = useState('');
    const [editing, setEditing] = useState(false);
    const inputRef = useRef(null);
@@ -41,6 +44,8 @@ export default function FlipInput(props) {
    }, [editing]);
 
    const handleEditing = useCallback(() => {
+      if (readOnly) return;
+
       setInputValue(value);
       setEditing(true);
    }, [setInputValue, value, setEditing]);
@@ -58,7 +63,7 @@ export default function FlipInput(props) {
    useClickOutside(editing && inputRef, saveInput);
 
    if (!editing) {
-      return <div className={$.display} onClick={handleEditing}>{value}</div>;
+      return <div className={`${$.display} ${className}`} onClick={handleEditing}>{value || inputProps.placeholder}</div>;
    }
 
    return (
@@ -67,7 +72,7 @@ export default function FlipInput(props) {
          value={inputValue}
          onChange={handleChange}
          handleEnter={saveInput}
-         className={`${className} ${$.input}`}
+         className={`${$.input} ${className}`}
          autoComplete="off"
          {...inputProps}
       />

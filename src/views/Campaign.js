@@ -10,11 +10,15 @@ import SessionPanel from '../components/campaign/SessionPanel';
 const useStyles = createUseStyles(theme => ({
    campaign: {
       flexDirection: 'row',
+      justifyContent: 'space-between',
    },
 
    list: {
       width: '100%',
+      minWidth: 240,
       flexDirection: 'column',
+      padding: 20,
+      overflowY: 'auto',
    },
 
    header: {
@@ -43,7 +47,9 @@ const useStyles = createUseStyles(theme => ({
       },
    },
 
-   sessionPanels: {},
+   sessionPanels: {
+      display: 'flex',
+   },
 }));
 
 export default function Campaign() {
@@ -52,7 +58,8 @@ export default function Campaign() {
    const dispatch = useDispatch();
    const campaignMatch = useSelector(state => state.campaigns.find(c => JSON.stringify(c.id) === id));
    const campaign = useSelector(state => state.campaign);
-   const [openSessions, setOpenSessions] = useState([]);
+   const [currentSession, setCurrentSession] = useState(null);
+   const [previewSession, setPreviewSession] = useState(null);
 
    // fetch and store current campaign
    useEffect(() => {
@@ -66,16 +73,12 @@ export default function Campaign() {
    }, [updateCampaign]);
 
    const handleSessionTile = useCallback(id => {
-      const newSessions = [...openSessions, id];
-      setOpenSessions(newSessions);
-   }, [openSessions, setOpenSessions]);
+      if (currentSession) setPreviewSession(id);
+      else setCurrentSession(id);
+   }, [currentSession, setCurrentSession, setPreviewSession]);
 
    const sessions = campaign.sessions.map(session => (
       <SessionTile key={session.id} onClick={handleSessionTile} session={session} />
-   ));
-
-   const sessionPanels = openSessions.map(sessionId => (
-      <SessionPanel key={sessionId} sessionId={sessionId} />
    ));
 
    return (
@@ -99,7 +102,8 @@ export default function Campaign() {
          </section>
 
          <section className={$.sessionPanels}>
-            {sessionPanels}
+            {currentSession && <SessionPanel sessionId={currentSession} closePanel={() => setCurrentSession(null)} />}
+            {previewSession && <SessionPanel preview sessionId={previewSession} closePanel={() => setPreviewSession(null)} />}
          </section>
       </div>
    );
