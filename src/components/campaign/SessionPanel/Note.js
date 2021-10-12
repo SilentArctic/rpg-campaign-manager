@@ -54,23 +54,25 @@ export default function Note({
    onChange,
    onShiftEnter,
    onCtrlEnter,
-   defaultEditing,
+   focusNewNote,
+   focusNoteDepth,
+   isLast,
    preview,
 }) {
    const $ = useStyles();
 
    const handleShiftEnter = e => {
-      onChange(e);
-      onShiftEnter(e);
+      onChange(e, note);
+      onShiftEnter(e, note.id);
    };
 
    const handleCtrlEnter = (e) => {
-      onChange(e);
-      onCtrlEnter(e);
+      onChange(e, note);
+      onCtrlEnter(e, note.id);
    };
 
    function renderChildren() {
-      return note.children.map(childNote => (
+      return note.children.map((childNote, i) => (
          <div key={childNote.id} className={$.childNote}>
             <span className="bracket" />
             <Note
@@ -78,6 +80,10 @@ export default function Note({
                preview={preview}
                onChange={onChange}
                onShiftEnter={onShiftEnter}
+               onCtrlEnter={onCtrlEnter}
+               focusNewNote={focusNewNote}
+               focusNoteDepth={focusNoteDepth}
+               isLast={i === note.children.length - 1}
                hideTime
             />
          </div>
@@ -97,8 +103,8 @@ export default function Note({
                onChange={e => onChange(e, note)}
                readOnly={preview}
                onShiftEnter={handleShiftEnter}
-               onCtrlEnter={e => handleCtrlEnter(e, [note.id])}
-               defaultEditing={defaultEditing}
+               onCtrlEnter={handleCtrlEnter}
+               defaultEditing={focusNewNote && focusNoteDepth === note.id.split('.').length && isLast}
             />
          </div>
          {note.children.length > 0 && (

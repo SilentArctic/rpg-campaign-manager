@@ -56,7 +56,7 @@ export default function Campaign() {
    const $ = useStyles();
    const { id } = useParams();
    const dispatch = useDispatch();
-   const campaignMatch = useSelector(state => state.campaigns.find(c => JSON.stringify(c.id) === id));
+   const campaignMatch = useSelector(state => state.campaigns.find(c => c.id === id));
    const campaign = useSelector(state => state.campaign);
    const [currentSession, setCurrentSession] = useState(null);
    const [previewSession, setPreviewSession] = useState(null);

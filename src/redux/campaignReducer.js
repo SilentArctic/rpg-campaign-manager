@@ -104,12 +104,14 @@ export const updateSession = (sessionId, name, value) => (dispatch, getState) =>
 };
 
 function createIdChain(noteId) {
-   let idChain = (noteId + '').split('.');
+   if (!noteId) return [];
+
+   let idChain = noteId.split('.');
    for (let i = 0; i < idChain.length; i++) {
       if (i === 0) {
-         idChain[i] = idChain[i] * 1;
+         continue;
       } else {
-         idChain[i] = `${idChain[i - 1] || ''}.${idChain[i]}` * 1;
+         idChain[i] = `${idChain[i - 1] || ''}.${idChain[i]}`;
       }
    }
 
@@ -126,19 +128,20 @@ export const updateSessionNotes = (sessionId, note, entry) => (dispatch, getStat
 
    /* update notes */
    const { notes } = session;
+   const newNotes = notes;
    (function updateNote(currentNotes, iteration = 0) {
       if (iteration === idChain.length - 1) {
-         const index = currentNotes.findIndex(n => n.id === idChain[iteration] * 1);
+         const index = currentNotes.findIndex(n => n.id === idChain[iteration]);
          currentNotes[index].entry = entry;
          return;
       }
 
       const nextNotes = currentNotes.find(n => n.id === idChain[iteration]).children;
       updateNote(nextNotes, iteration + 1);
-   })(notes);
+   })(newNotes);
 
    /* update session notes */
-   session.notes = notes;
+   session.notes = newNotes;
 
    /* update sessions*/
    const newSessions = [...sessions];
@@ -150,7 +153,7 @@ export const updateSessionNotes = (sessionId, note, entry) => (dispatch, getStat
    });
 };
 
-export const createSessionNote = (sessionId, entry, noteIds = []) => (dispatch, getState) => {
+export const createSessionNote = (sessionId, entry, referenceNoteId, relation) => (dispatch, getState) => {
    const newNote = {
       id: Math.floor(Math.random() * 10000),
       // isTitle: entry.split(' ')[0] === 'Title:',
@@ -164,11 +167,30 @@ export const createSessionNote = (sessionId, entry, noteIds = []) => (dispatch, 
    const sessionIndex = sessions.findIndex(s => s.id === sessionId);
    const session = sessions[sessionIndex];
 
-   /* add note */
+   const idChain = createIdChain(referenceNoteId);
    const { notes } = session;
-   if (noteIds.length === 0) {
-      session.notes = [...notes, newNote];
-   }
+   const newNotes = notes;
+
+   (function addNote(currentNotes, iteration = 0) {
+      // const check = relation === 'sibling'
+      //    ? idChain.length <= 1 || iteration === idChain.length - 1
+      //    : idChain.
+
+      if (idChain.length <= 1 || iteration === idChain.length - 1) {
+         let idPrefix = idChain.slice(0, -1).join('.');
+         idPrefix = idPrefix ? `${idPrefix}.` : '';
+         const id = `${idPrefix}${Math.floor(Math.random() * 10000)}`;
+
+         currentNotes.push({ ...newNote, id });
+         return;
+      }
+
+      const nextNotes = currentNotes.find(n => n.id === idChain[iteration]).children;
+      addNote(nextNotes, iteration + 1);
+   })(newNotes);
+
+   /* update session notes */
+   session.notes = newNotes;
 
    /* update sessions */
    const newSessions = [...sessions];
