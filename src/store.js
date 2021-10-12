@@ -1,6 +1,12 @@
-import { createStore, combineReducers, compose } from 'redux';
+import {
+   createStore,
+   combineReducers,
+   compose,
+   applyMiddleware,
+} from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import thunk from 'redux-thunk';
 
 import campaignsReducer from './redux/campaignsReducer';
 import campaignReducer from './redux/campaignReducer';
@@ -20,7 +26,7 @@ const persistedReducer = persistReducer(persistConfig, reducers);
 
 const store = () => {
    const composition = compose(
-      // applyMiddleware(),
+      applyMiddleware(thunk),
       window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
    );
    const store = createStore(persistedReducer, composition);

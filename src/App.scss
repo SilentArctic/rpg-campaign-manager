@@ -1,6 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 .App {
    min-height: 100vh;
    width: 100%;
+   font-family: 'Roboto', sans-serif;
+   & * {
+      font-family: 'Roboto', sans-serif;
+   }
 }
 
 .global-page {
@@ -8,7 +14,6 @@
    width: 100%;
    display: flex;
    flex-direction: column;
-   padding: 20px;
 }
 
 a {
