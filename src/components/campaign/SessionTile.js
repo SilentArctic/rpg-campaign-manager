@@ -24,7 +24,7 @@ export default function SessionTile({ isNew, onClick, session }) {
    const { name, id } = session;
 
    if (isNew) {
-      return <div className={$.session_new}>+</div>
+      return <div className={$.session_new} onClick={onClick}>+</div>
    }
 
    return (

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createUseStyles } from 'react-jss';
 import PropTypes from 'prop-types';
@@ -27,6 +27,7 @@ const useStyles = createUseStyles(theme => ({
 
       '& .name': {
          width: '50%',
+         fontSize: 20,
       },
    },
 
@@ -59,6 +60,7 @@ const useStyles = createUseStyles(theme => ({
 export default function SessionPanel({ sessionId, preview, closePanel }) {
    const $ = useStyles({ preview });
    const dispatch = useDispatch();
+   const [focusNewNote, setFocusNewNote] = useState(false);
    const changesMade = useSelector(state => state.campaign.changesMade);
    const session = useSelector(state => state.campaign.sessions.find(s => s.id === sessionId));
 
@@ -68,15 +70,29 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
 
    const handleEntry = useCallback((e, note) => {
       dispatch(updateSessionNotes(sessionId, note, e.target.value));
-   });
+      setFocusNewNote(false);
+   }, [dispatch, updateSessionNotes, sessionId]);
 
-   const renderNotes = (notes, topLevel) => notes.map(note => (
+   const handleShiftEnter = useCallback(() => {
+      dispatch(createSessionNote(sessionId, ''));
+      setFocusNewNote(true);
+   }, [dispatch, createSessionNote, sessionId]);
+
+   const handleCtrlEnter = useCallback((e, noteId) => {
+      console.log('ctrl enter', noteId);
+      dispatch(createSessionNote(sessionId, ''));
+   }, [dispatch, createSessionNote, sessionId]);
+
+   const renderNotes = (notes, topLevel) => notes.map((note, i) => (
       <Note
          key={note.id}
          note={note}
          hideTime={!topLevel}
-         onChange={e => handleEntry(e, note)}
+         onChange={(e, targetNote) => handleEntry(e, targetNote)}
+         onShiftEnter={handleShiftEnter}
+         onCtrlEnter={handleCtrlEnter}
          preview={preview}
+         defaultEditing={focusNewNote && topLevel && i === notes.length - 1}
       />
    ));
 

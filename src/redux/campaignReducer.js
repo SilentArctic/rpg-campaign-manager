@@ -36,6 +36,7 @@ const initialState = {
 
 const SET_CAMPAIGN = 'SET_CAMPAIGN';
 const UPDATE_CAMPAIGN = 'UPDATE_CAMPAIGN';
+const CREATE_SESSION = 'CREATE_SESSION';
 const UPDATE_SESSION = 'UPDATE_SESSION';
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -45,6 +46,8 @@ const reducer = (state = initialState, { type, payload }) => {
          return { ...payload, changesMade: false };
       case UPDATE_CAMPAIGN:
          return { ...state, [payload.name]: payload.value, changesMade: true };
+      case CREATE_SESSION:
+         return { ...state, sessions: payload };
       case UPDATE_SESSION:
          return { ...state, sessions: payload, changesMade: true };
 
@@ -64,6 +67,25 @@ export const updateCampaign = (name, value) => ({
    payload: { name, value },
 });
 
+export const createSession = () => (dispatch, getState) => {
+   const { sessions } = getState().campaign;
+   const date = new Date();
+
+   dispatch({
+      type: CREATE_SESSION,
+      payload: [{
+         id: Math.floor(Math.random() * 10000),
+         name: 'New session',
+         description: '',
+         creationDate: date,
+         lastUpdated: date,
+         notes: [],
+         conclusionLocation: '',
+         conclusionTime: '',
+      }, ...sessions],
+   });
+};
+
 export const updateSession = (sessionId, name, value) => (dispatch, getState) => {
    // find session
    const { sessions } = getState().campaign;
@@ -81,21 +103,44 @@ export const updateSession = (sessionId, name, value) => (dispatch, getState) =>
    });
 };
 
+function createIdChain(noteId) {
+   let idChain = (noteId + '').split('.');
+   for (let i = 0; i < idChain.length; i++) {
+      if (i === 0) {
+         idChain[i] = idChain[i] * 1;
+      } else {
+         idChain[i] = `${idChain[i - 1] || ''}.${idChain[i]}` * 1;
+      }
+   }
+
+   return idChain;
+}
+
 export const updateSessionNotes = (sessionId, note, entry) => (dispatch, getState) => {
-   // find session
+   const idChain = createIdChain(note.id);
+
+   /* find session */
    const { sessions } = getState().campaign;
    const sessionIndex = sessions.findIndex(s => s.id === sessionId);
    const session = sessions[sessionIndex];
 
-   // update notes
+   /* update notes */
    const { notes } = session;
-   const noteIndex = notes.findIndex(n => n.id === note.id);
-   notes.splice(noteIndex, 1, { ...note, entry });
+   (function updateNote(currentNotes, iteration = 0) {
+      if (iteration === idChain.length - 1) {
+         const index = currentNotes.findIndex(n => n.id === idChain[iteration] * 1);
+         currentNotes[index].entry = entry;
+         return;
+      }
 
-   // update session notes
+      const nextNotes = currentNotes.find(n => n.id === idChain[iteration]).children;
+      updateNote(nextNotes, iteration + 1);
+   })(notes);
+
+   /* update session notes */
    session.notes = notes;
 
-   // update sessions
+   /* update sessions*/
    const newSessions = [...sessions];
    newSessions.splice(sessionIndex, 1, session);
 
@@ -105,25 +150,27 @@ export const updateSessionNotes = (sessionId, note, entry) => (dispatch, getStat
    });
 };
 
-export const createSessionNote = (sessionId, entry) => (dispatch, getState) => {
-   if (!entry) return;
+export const createSessionNote = (sessionId, entry, noteIds = []) => (dispatch, getState) => {
+   const newNote = {
+      id: Math.floor(Math.random() * 10000),
+      // isTitle: entry.split(' ')[0] === 'Title:',
+      entry,
+      children: [],
+      time: new Date(),
+   };
 
-   // find session
+   /* find session */
    const { sessions } = getState().campaign;
    const sessionIndex = sessions.findIndex(s => s.id === sessionId);
    const session = sessions[sessionIndex];
 
-   // add note
+   /* add note */
    const { notes } = session;
-   session.notes = [...notes, {
-      id: Math.floor(Math.random() * 10000),
-      isTitle: entry.split(' ')[0] === 'Title:',
-      entry,
-      children: [],
-      time: new Date(),
-   }];
+   if (noteIds.length === 0) {
+      session.notes = [...notes, newNote];
+   }
 
-   // update sessions
+   /* update sessions */
    const newSessions = [...sessions];
    newSessions.splice(sessionIndex, 1, session);
 
