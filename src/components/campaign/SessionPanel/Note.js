@@ -27,7 +27,7 @@ const useStyles = createUseStyles(theme => ({
    },
 
    children: {
-      marginLeft: 80,
+      marginLeft: ({ depth }) => depth === 1 ? 80 : 20,
    },
 
    childNote: {
@@ -59,7 +59,7 @@ export default function Note({
    isLast,
    preview,
 }) {
-   const $ = useStyles();
+   const $ = useStyles({ depth: note.id.split('.').length });
 
    const handleShiftEnter = e => {
       onChange(e, note);

@@ -83,19 +83,18 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
    const handleCtrlEnter = useCallback((e, noteId) => {
       dispatch(createSessionNote(sessionId, '', noteId, 'child'));
       setFocusNewNote(true);
-      setFocusNoteDepth(noteId.split('.').length);
+      setFocusNoteDepth(noteId.split('.').length + 1);
    }, [dispatch, createSessionNote, sessionId]);
 
-   const renderNotes = (notes, topLevel) => notes.map((note, i) => (
+   const notes = session.notes.map((note, i) => (
       <Note
          key={note.id}
          note={note}
-         hideTime={!topLevel}
          onChange={(e, targetNote) => handleEntry(e, targetNote)}
          onShiftEnter={handleShiftEnter}
          onCtrlEnter={handleCtrlEnter}
          preview={preview}
-         isLast={i === notes.length - 1}
+         isLast={i === session.notes.length - 1}
          focusNewNote={focusNewNote}
          focusNoteDepth={focusNoteDepth}
       />
@@ -121,14 +120,7 @@ export default function SessionPanel({ sessionId, preview, closePanel }) {
          </header>
 
          <div className={$.body}>
-            {renderNotes(session.notes, true)}
-            {!preview && (
-               <FlipInput
-                  placeholder="+ New entry"
-                  readOnly={preview}
-                  onChange={e => dispatch(createSessionNote(sessionId, e.target.value))}
-               />
-            )}
+            {notes}
 
             <section className="conclusion">
                <h1>Conclusion</h1>

@@ -172,20 +172,20 @@ export const createSessionNote = (sessionId, entry, referenceNoteId, relation) =
    const newNotes = notes;
 
    (function addNote(currentNotes, iteration = 0) {
-      // const check = relation === 'sibling'
-      //    ? idChain.length <= 1 || iteration === idChain.length - 1
-      //    : idChain.
 
-      if (idChain.length <= 1 || iteration === idChain.length - 1) {
+      if (relation === 'sibling' && (idChain.length <= 1 || iteration === idChain.length - 1)) {
          let idPrefix = idChain.slice(0, -1).join('.');
          idPrefix = idPrefix ? `${idPrefix}.` : '';
          const id = `${idPrefix}${Math.floor(Math.random() * 10000)}`;
-
+         currentNotes.push({ ...newNote, id });
+         return;
+      } else if (relation === 'child' && (idChain.length === 1 || iteration === idChain.length)) {
+         let id = `${referenceNoteId}.${Math.floor(Math.random() * 10000)}`;
          currentNotes.push({ ...newNote, id });
          return;
       }
 
-      const nextNotes = currentNotes.find(n => n.id === idChain[iteration]).children;
+      const nextNotes = currentNotes.find(n => n.id === idChain[iteration]).children || [];
       addNote(nextNotes, iteration + 1);
    })(newNotes);
 
